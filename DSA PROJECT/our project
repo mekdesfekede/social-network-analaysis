@@ -1,0 +1,122 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <map>
+#include <queue>
+#include <stack>
+#include <algorithm>
+#include <iomanip>
+using namespace std;
+
+// Structure to represent weighted connections
+struct Connection {
+    string targetUser;
+    int strength; // Friendship strength (1-10)
+    
+    Connection(string user, int str) : targetUser(user), strength(str) {}
+};
+
+// User structure
+struct User {
+    string username;
+    string name;
+    vector<string> posts;
+    vector<Connection> followers; // Weighted followers
+    vector<Connection> following; // Weighted following
+    
+    User(string uname, string n) : username(uname), name(n) {}
+};
+
+// Social Network Graph class
+class InstagramGraph {
+private:
+    map<string, User*> users;
+    
+public:
+    ~InstagramGraph();
+    void addUser(string username, string name);
+    void deleteUser(string username);
+    void addPost(string username, string content);
+    void followUser(string follower, string followee, int strength);
+    void displayUserProfile(string username);
+    void displayFollowers(string username);
+    void displayFollowing(string username);
+    void displayFeed(string username);
+    void displayAllUsers();
+    bool searchUser(string username);
+    void BFSTraversal(string startUsername);
+    void DFSTraversal(string startUsername);
+    void suggestFriends(string username);
+    void displayStrongestConnections(string username);
+    void displayConnectionStrength(string user1, string user2);
+};
+
+// Destructor
+InstagramGraph::~InstagramGraph() {
+    for (auto& pair : users) {
+        delete pair.second;
+    }
+}
+
+// Add a new user to the network
+void InstagramGraph::addUser(string username, string name) {
+    if (users.find(username) != users.end()) {
+        cout << "Username @" << username << " already exists!" << endl;
+        return;
+    }
+    
+    User* newUser = new User(username, name);
+    users[username] = newUser;
+    cout << "User @" << username << " added successfully." << endl;
+}
+
+// Follow a user with connection strength
+void InstagramGraph::followUser(string follower, string followee, int strength = 5) {
+    if (users.find(follower) == users.end() || users.find(followee) == users.end()) {
+        cout << "One or both users don't exist!" << endl;
+        return;
+    }
+    
+    if (strength < 1 || strength > 10) {
+        cout << "Strength must be between 1-10. Using default (5)." << endl;
+        strength = 5;
+    }
+    
+    // Check if already following
+    auto it = find_if(users[follower]->following.begin(), users[follower]->following.end(),
+        [&followee](const Connection& c) { return c.targetUser == followee; });
+    
+    if (it != users[follower]->following.end()) {
+        cout << "@" << follower << " is already following @" << followee << endl;
+        return;
+    }
+    
+    // Add to following list with strength
+    users[follower]->following.emplace_back(followee, strength);
+    // Add to followers list with strength
+    users[followee]->followers.emplace_back(follower, strength);
+    
+    cout << "@" << follower << " is now following @" << followee 
+         << " (strength: " << strength << "/10)" << endl;
+}
+
+// Add a new post for a user
+void InstagramGraph::addPost(string username, string content) {
+    if (users.find(username) == users.end()) {
+        cout << "User @" << username << " not found." << endl;
+        return;
+    }
+    
+    users[username]->posts.push_back(content);
+    cout << "Post added successfully to @" << username << "'s profile." << endl;
+}
+
+// Display user profile
+void InstagramGraph::displayUserProfile(string username) {
+    if (users.find(username) == users.end()) {
+        cout << "User @" << username << " not found." << endl;
+        return;
+    }
+    
+    User* user = users[username];
+    cout << "\nProfile: @" << username << " (" << user->name << ")\n";
