@@ -120,3 +120,461 @@ void InstagramGraph::displayUserProfile(string username) {
     
     User* user = users[username];
     cout << "\nProfile: @" << username << " (" << user->name << ")\n";
+cout << "Followers: " << user->followers.size() 
+         << " | Following: " << user->following.size() << "\n";
+    
+    cout << "\nPosts (" << user->posts.size() << "):\n";
+    for (const auto& post : user->posts) {
+        cout << "- " << post << "\n";
+    }
+}
+
+// Display followers of a user with strength
+void InstagramGraph::displayFollowers(string username) {
+    if (users.find(username) == users.end()) {
+        cout << "User @" << username << " not found." << endl;
+        return;
+    }
+    
+    User* user = users[username];
+    cout << "\nFollowers of @" << username << " (" << user->followers.size() << "):\n";
+    for (const auto& follower : user->followers) {
+        cout << "- @" << follower.targetUser << " (strength: " << follower.strength << "/10)\n";
+    }
+}
+
+// Display who a user is following with strength
+void InstagramGraph::displayFollowing(string username) {
+    if (users.find(username) == users.end()) {
+        cout << "User @" << username << " not found." << endl;
+        return;
+    }
+    
+    User* user = users[username];
+    cout << "\n@" << username << " is following (" << user->following.size() << "):\n";
+    for (const auto& following : user->following) {
+        cout << "- @" << following.targetUser << " (strength: " << following.strength << "/10)\n";
+    }
+}
+
+// Display feed (posts from people you follow, sorted by strength)
+void InstagramGraph::displayFeed(string username) {
+    if (users.find(username) == users.end()) {
+        cout << "User @" << username << " not found." << endl;
+        return;
+    }
+    
+    User* user = users[username];
+    cout << "\nFeed for @" << username << " (sorted by connection strength):\n";
+    
+    if (user->following.empty()) {
+        cout << "You're not following anyone yet. Follow people to see their posts here!\n";
+        return;
+    }
+    
+    // Sort following by strength (highest first)
+    vector<Connection> sortedFollowing = user->following;
+    sort(sortedFollowing.begin(), sortedFollowing.end(),
+        [](const Connection& a, const Connection& b) {
+            return a.strength > b.strength;
+        });
+    
+    for (const auto& following : sortedFollowing) {
+        User* followedUser = users[following.targetUser];
+        if (!followedUser->posts.empty()) {
+            cout << "\nPosts from @" << following.targetUser 
+                 << " (connection strength: " << following.strength << "/10):\n";
+            for (const auto& post : followedUser->posts) {
+                cout << "- " << post << "\n";
+            }
+        }
+    }
+}
+
+// Display all users in the network
+void InstagramGraph::displayAllUsers() {
+    cout << "\nUsers in the network (" << users.size() << "):\n";
+    for (const auto& pair : users) {
+        cout << "@" << pair.first << " (" << pair.second->name << ")\n";
+    }
+}
+
+// Search for a user
+bool InstagramGraph::searchUser(string username) {
+    return users.find(username) != users.end();
+}
+
+// BFS Traversal
+void InstagramGraph::BFSTraversal(string startUsername) {
+    if (users.find(startUsername) == users.end()) {
+        cout << "User @" << startUsername << " not found." << endl;
+        return;
+    }
+    
+    map<string, bool> visited;
+    queue<string> q;
+    
+    visited[startUsername] = true;
+    q.push(startUsername);
+    
+    cout << "\nBFS Traversal starting from @" << startUsername << ":\n";
+    cout << "Order of visitation:\n";
+    
+    while (!q.empty()) {
+        string current = q.front();
+        q.pop();
+        cout << "- @" << current << "\n";
+        
+        User* currentUser = users[current];
+        for (const auto& neighbor : currentUser->following) {
+            if (!visited[neighbor.targetUser]) {
+                visited[neighbor.targetUser] = true;
+                q.push(neighbor.targetUser);
+            }
+        }
+    }
+}
+cout << "Followers: " << user->followers.size() 
+         << " | Following: " << user->following.size() << "\n";
+    
+    cout << "\nPosts (" << user->posts.size() << "):\n";
+    for (const auto& post : user->posts) {
+        cout << "- " << post << "\n";
+    }
+}
+
+// Display followers of a user with strength
+void InstagramGraph::displayFollowers(string username) {
+    if (users.find(username) == users.end()) {
+        cout << "User @" << username << " not found." << endl;
+        return;
+    }
+    
+    User* user = users[username];
+    cout << "\nFollowers of @" << username << " (" << user->followers.size() << "):\n";
+    for (const auto& follower : user->followers) {
+        cout << "- @" << follower.targetUser << " (strength: " << follower.strength << "/10)\n";
+    }
+}
+
+// Display who a user is following with strength
+void InstagramGraph::displayFollowing(string username) {
+    if (users.find(username) == users.end()) {
+        cout << "User @" << username << " not found." << endl;
+        return;
+    }
+    
+    User* user = users[username];
+    cout << "\n@" << username << " is following (" << user->following.size() << "):\n";
+    for (const auto& following : user->following) {
+        cout << "- @" << following.targetUser << " (strength: " << following.strength << "/10)\n";
+    }
+}
+
+// Display feed (posts from people you follow, sorted by strength)
+void InstagramGraph::displayFeed(string username) {
+    if (users.find(username) == users.end()) {
+        cout << "User @" << username << " not found." << endl;
+        return;
+    }
+    
+    User* user = users[username];
+    cout << "\nFeed for @" << username << " (sorted by connection strength):\n";
+    
+    if (user->following.empty()) {
+        cout << "You're not following anyone yet. Follow people to see their posts here!\n";
+        return;
+    }
+    
+    // Sort following by strength (highest first)
+    vector<Connection> sortedFollowing = user->following;
+    sort(sortedFollowing.begin(), sortedFollowing.end(),
+        [](const Connection& a, const Connection& b) {
+            return a.strength > b.strength;
+        });
+    
+    for (const auto& following : sortedFollowing) {
+        User* followedUser = users[following.targetUser];
+        if (!followedUser->posts.empty()) {
+            cout << "\nPosts from @" << following.targetUser 
+                 << " (connection strength: " << following.strength << "/10):\n";
+            for (const auto& post : followedUser->posts) {
+                cout << "- " << post << "\n";
+            }
+        }
+    }
+}
+
+// Display all users in the network
+void InstagramGraph::displayAllUsers() {
+    cout << "\nUsers in the network (" << users.size() << "):\n";
+    for (const auto& pair : users) {
+        cout << "@" << pair.first << " (" << pair.second->name << ")\n";
+    }
+}
+
+// Search for a user
+bool InstagramGraph::searchUser(string username) {
+    return users.find(username) != users.end();
+}
+
+// BFS Traversal
+void InstagramGraph::BFSTraversal(string startUsername) {
+    if (users.find(startUsername) == users.end()) {
+        cout << "User @" << startUsername << " not found." << endl;
+        return;
+    }
+    
+    map<string, bool> visited;
+    queue<string> q;
+    
+    visited[startUsername] = true;
+    q.push(startUsername);
+    
+    cout << "\nBFS Traversal starting from @" << startUsername << ":\n";
+    cout << "Order of visitation:\n";
+    
+    while (!q.empty()) {
+        string current = q.front();
+        q.pop();
+        cout << "- @" << current << "\n";
+        
+        User* currentUser = users[current];
+        for (const auto& neighbor : currentUser->following) {
+            if (!visited[neighbor.targetUser]) {
+                visited[neighbor.targetUser] = true;
+                q.push(neighbor.targetUser);
+            }
+        }
+    }
+}
+// Display strongest connections for a user
+void InstagramGraph::displayStrongestConnections(string username) {
+    if (users.find(username) == users.end()) {
+        cout << "User @" << username << " not found." << endl;
+        return;
+    }
+    
+    User* user = users[username];
+    if (user->following.empty()) {
+        cout << "@" << username << " isn't following anyone yet.\n";
+        return;
+    }
+    
+    // Sort following by strength (highest first)
+    vector<Connection> sortedFollowing = user->following;
+    sort(sortedFollowing.begin(), sortedFollowing.end(),
+        [](const Connection& a, const Connection& b) {
+            return a.strength > b.strength;
+        });
+    
+    cout << "\nStrongest connections for @" << username << ":\n";
+    int count = 0;
+    for (const auto& connection : sortedFollowing) {
+        cout << ++count << ". @" << connection.targetUser 
+             << " (strength: " << connection.strength << "/10)\n";
+        if (count >= 5) break; // Show top 5
+    }
+}
+
+// Display connection strength between two users
+void InstagramGraph::displayConnectionStrength(string user1, string user2) {
+    if (users.find(user1) == users.end() || users.find(user2) == users.end()) {
+        cout << "One or both users don't exist!" << endl;
+        return;
+    }
+    
+    // Check if user1 follows user2
+    auto it = find_if(users[user1]->following.begin(), users[user1]->following.end(),
+        [&user2](const Connection& c) { return c.targetUser == user2; });
+    
+    if (it != users[user1]->following.end()) {
+        cout << "\nConnection strength from @" << user1 << " to @" << user2 
+             << ": " << it->strength << "/10\n";
+    } else {
+        cout << "\n@" << user1 << " doesn't follow @" << user2 << endl;
+    }
+    
+    // Check if user2 follows user1
+    it = find_if(users[user2]->following.begin(), users[user2]->following.end(),
+        [&user1](const Connection& c) { return c.targetUser == user1; });
+    
+    if (it != users[user2]->following.end()) {
+        cout << "Connection strength from @" << user2 << " to @" << user1 
+             << ": " << it->strength << "/10\n";
+    } else {
+        cout << "@" << user2 << " doesn't follow @" << user1 << endl;
+    }
+}
+
+// Menu function
+void displaySocialMediaMenu() {
+    InstagramGraph instaGraph;
+    char choice;
+    string username, name, content, user1, user2;
+    int strength;
+    
+    // Add sample data
+    instaGraph.addUser("alice", "Alice Wonderland");
+    instaGraph.addUser("bob", "Bob Builder");
+    instaGraph.addUser("charlie", "Charlie Brown");
+    instaGraph.addUser("dave", "David Miller");
+    instaGraph.addUser("eve", "Eve Smith");
+    
+    instaGraph.followUser("alice", "bob", 8);
+    instaGraph.followUser("alice", "charlie", 6);
+    instaGraph.followUser("bob", "dave", 9);
+    instaGraph.followUser("charlie", "dave", 7);
+    instaGraph.followUser("dave", "eve", 5);
+    instaGraph.followUser("eve", "alice", 4);
+    
+    instaGraph.addPost("alice", "My first post! #excited");
+    instaGraph.addPost("bob", "Just built a new house! #construction");
+    instaGraph.addPost("charlie", "Happy day at the park! #sunshine");
+    instaGraph.addPost("dave", "Working on a new project #coding");
+    instaGraph.addPost("eve", "Delicious dinner tonight #foodie");
+    
+    do {
+        cout << "\n\n\t\t Instagram-like Social Network Menu" << endl;
+        cout << "1. Add a new user" << endl;
+        cout << "2. Delete a user" << endl;
+        cout << "3. Add a post" << endl;
+        cout << "4. Follow a user (with strength)" << endl;
+        cout << "5. View user profile" << endl;
+        cout << "6. View followers" << endl;
+        cout << "7. View who you're following" << endl;
+        cout << "8. View your feed (sorted by strength)" << endl;
+        cout << "9. View all users" << endl;
+cout << "A. Search for a user" << endl;
+        cout << "B. Get friend suggestions (BFS with strength)" << endl;
+        cout << "C. BFS Traversal" << endl;
+        cout << "D. DFS Traversal" << endl;
+        cout << "E. View strongest connections" << endl;
+        cout << "F. View connection strength between users" << endl;
+        cout << "X. Exit" << endl;
+        cout << "Enter your choice: ";
+        cin >> choice;
+        
+        switch (toupper(choice)) {
+            case '1':
+                cout << "Enter username: ";
+                cin >> username;
+                cout << "Enter name: ";
+                cin.ignore();
+                getline(cin, name);
+                instaGraph.addUser(username, name);
+                break;
+                
+            case '2':
+                cout << "Enter username to delete: ";
+                cin >> username;
+                // In real app, we'd remove from others' followers/following
+                cout << "Note: In this simple implementation, deleting users may leave dangling references.\n";
+                // instaGraph.deleteUser(username);
+                cout << "Delete functionality disabled to preserve sample data.\n";
+                break;
+                
+            case '3':
+                cout << "Enter your username: ";
+                cin >> username;
+                cout << "Enter post content: ";
+                cin.ignore();
+                getline(cin, content);
+                instaGraph.addPost(username, content);
+                break;
+                
+            case '4':
+                cout << "Enter your username (follower): ";
+                cin >> user1;
+                cout << "Enter username to follow: ";
+                cin >> user2;
+                cout << "Enter connection strength (1-10, default 5): ";
+                cin >> strength;
+                instaGraph.followUser(user1, user2, strength);
+                break;
+                
+            case '5':
+                cout << "Enter username to view: ";
+                cin >> username;
+                instaGraph.displayUserProfile(username);
+                break;
+                
+            case '6':
+                cout << "Enter username to view followers: ";
+                cin >> username;
+                instaGraph.displayFollowers(username);
+                break;
+                
+            case '7':
+                cout << "Enter username to view who they follow: ";
+                cin >> username;
+                instaGraph.displayFollowing(username);
+                break;
+                
+            case '8':
+                cout << "Enter username to view feed: ";
+                cin >> username;
+                instaGraph.displayFeed(username);
+                break;
+                
+            case '9':
+                instaGraph.displayAllUsers();
+                break;
+                
+            case 'A':
+                cout << "Enter username to search: ";
+                cin >> username;
+                if (instaGraph.searchUser(username)) {
+                    cout << "User @" << username << " exists in the network." << endl;
+                } else {
+                    cout << "User @" << username << " not found." << endl;
+                }
+                break;
+                
+            case 'B':
+                cout << "Enter your username for suggestions: ";
+                cin >> username;
+                instaGraph.suggestFriends(username);
+                break;
+                
+            case 'C':
+                cout << "Enter starting username for BFS: ";
+                cin >> username;
+                instaGraph.BFSTraversal(username);
+                break;
+                
+            case 'D':
+                cout << "Enter starting username for DFS: ";
+cin >> username;
+                instaGraph.DFSTraversal(username);
+                break;
+                
+            case 'E':
+                cout << "Enter username to view strongest connections: ";
+                cin >> username;
+                instaGraph.displayStrongestConnections(username);
+                break;
+                
+            case 'F':
+                cout << "Enter first username: ";
+                cin >> user1;
+                cout << "Enter second username: ";
+                cin >> user2;
+                instaGraph.displayConnectionStrength(user1, user2);
+                break;
+                
+            case 'X':
+                cout << "Goodbye! Thanks for using our social network." << endl;
+                break;
+                
+            default:
+                cout << "Invalid choice! Please try again." << endl;
+                break;
+        }
+    } while (toupper(choice) != 'X');
+}
+
+int main() {
+    displaySocialMediaMenu();
+    return 0;
+}
